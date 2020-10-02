@@ -138,6 +138,8 @@ The *args* is a list of *-option "value"* where *-option* may be:
    * *-seen* - number of first lines seen at start (default 99999999)
    * *-optRE* - flag "use a regular expression to highlight options" (default "yes")
 
+**Note**: `-seen 500` and `-multiline no` can improve the performance a lot. It's recommended to use `-seen 500` (or any other reasonable limit, e.g. `-seen 200`) at any rate, except for static html pages.
+
 The rest of *hl_tcl* procedures are:
 
    *  **`hl_all `** updates all highlighted existing text widgets, e.g. at changing a color scheme of application
