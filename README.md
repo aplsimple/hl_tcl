@@ -168,6 +168,6 @@ Perhaps, you would want to modify the *tcl_html.tcl*, this way:
 
   * [Source](https://chiselapp.com/user/aplsimple/repository/hl_tcl/download) (hl_tcl.zip)
 
-  * [Demo of hl_tcl v0.6](https://github.com/aplsimple/hl_tcl/releases/download/hl_tcl-0.6/hl_tcl-0.6.mp4) (33 Mb)
+  * [Demo of hl_tcl v0.6.1](https://github.com/aplsimple/hl_tcl/releases/download/hl_tcl-0.6.1/hl_tcl-0.6.1.mp4) (25 Mb)
 
 Note that [hl_tcl](https://aplsimple.github.io/en/tcl/hl_tcl/hl_tcl.html) is still disposed to update.
