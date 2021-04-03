@@ -6,7 +6,7 @@
 # License: MIT.
 # _______________________________________________________________________ #
 
-package provide hl_tcl 0.8.5
+package provide hl_tcl 0.8.7
 
 # _______________ Common data of ::hl_tcl:: namespace ______________ #
 
@@ -339,6 +339,8 @@ proc ::hl_tcl::my::CoroHighlightAll {txt} {
   #   txt - text widget's path
   # See also: HighlightAll
 
+  variable data
+  if {$data(PLAINTEXT,$txt)} return
   set tlen [lindex [split [$txt index end] .] 0]
   RemoveTags $txt 1.0 end
   set maxl [expr {min($::hl_tcl::my::data(SEEN,$txt),$tlen)}]
@@ -407,11 +409,40 @@ proc ::hl_tcl::my::ShowCurrentLine {txt} {
 }
 #_____
 
+proc ::hl_tcl::my::MemPos1 {txt {donorm yes}} {
+  # Checks and sets the cursor's width, depending on its position.
+  #   txt - text widget's path
+  #   donorm - if yes, forces "normal" cursor
+  # This fixes an issue with text cursor: less width at 0th column.
+
+  variable data
+  if {$data(INSERTWIDTH,$txt)==1} {
+    if {[$txt cget -insertwidth]!=1} {$txt configure -insertwidth 1}
+    return 0
+  }
+  set insLC [$txt index insert]
+  lassign [split $insLC .] L C
+  if {$data(_INSPOS_,$txt) eq ""} {
+    set L2 [set C2 0]
+  } else {
+    lassign [split $data(_INSPOS_,$txt) .] L2 C2
+  }
+  if {$L!=$L2 || $C==0 || $C2==0} {
+    if {$C || $donorm} {
+      $txt configure -insertwidth $data(INSERTWIDTH,$txt)
+    } else {
+      $txt configure -insertwidth [expr {$data(INSERTWIDTH,$txt)*2-1}]
+    }
+  }
+  return $insLC
+}
+
 proc ::hl_tcl::my::MemPos {txt} {
   # Remembers the state of current line.
   #   txt - text widget's path
 
   variable data
+  set data(_INSPOS_,$txt) [MemPos1 $txt no]
   set ln [ShowCurrentLine $txt]
   set data(CURPOS,$txt) $ln
   set data(CUR_LEN,$txt) [$txt index "end -1 char"]
@@ -423,23 +454,45 @@ proc ::hl_tcl::my::MemPos {txt} {
     # run a command after changing position (with the state as arguments)
     append cmd " $txt $data(CUR_LEN,$txt) $ln $data(CNT_QUOTE,$txt) \
       $data(CNT_SLASH,$txt) $data(CNT_COMMENT,$txt)"
-    after idle $cmd
+    catch {after cancel $data(CMDATFER,$txt)}
+    set data(CMDATFER,$txt) [after idle $cmd]
   }
 }
 #_____
 
-proc ::hl_tcl::my::Modified {txt {i1 -1} {i2 -1}} {
+proc ::hl_tcl::my::Modified {txt oper pos1 args} {
   # Handles modifications of text.
   #   txt - text widget's path
   # Makes a coroutine from this.
   # See also: CoroModified
 
   variable data
+  set ar2 [lindex $args 0]
+  set posins [$txt index insert]
+  if {[catch {set pos1 [set pos2 [$txt index $pos1]]}]} {
+    set pos1 [set pos2 $posins]
+  }
+  switch $oper {
+    insert {
+      set nl [expr {[llength [split $ar2 \n]] - 1}]
+      set pos2 [$txt index "$pos1 +$nl lines"]
+      if {($pos1+$nl)>$pos2} {
+        set pos1 [expr {1.0*int(max(1,abs($pos2-$nl)))}]
+      }
+    }
+    delete {
+      if {$ar2 eq "" || [catch {set pos2 [$txt index $ar2]}]} {
+        set pos2 $posins
+      }
+    }
+  }
   if {![info exist data(REG_TXT,$txt)] || $data(REG_TXT,$txt) eq "" || \
   ![info exist data(CUR_LEN,$txt)]} {
     return  ;# skip changes till the highlighting done
   }
   # let them work one by one
+  set i1 [expr {int($pos1)}]
+  set i2 [expr {int($pos2)}]
   set coroNo [expr {[incr ::hl_tcl::my::data(CORMOD)] % 10000000}]
   coroutine CoModified$coroNo ::hl_tcl::my::CoroModified $txt $i1 $i2
 }
@@ -489,28 +542,32 @@ proc ::hl_tcl::my::CoroModified {txt {i1 -1} {i2 -1}} {
   } else {
     set currQtd [LineState $txt $tSTR $tCMN "$ln1.0 -1 chars"]
   }
-  set lnseen 0
-  while {$ln1<=$ln2} {
-    if {$ln1==$ln2} {
-      set bf2 [LineState $txt $tSTR $tCMN "$ln1.end +1 chars"]
+  if {!$data(PLAINTEXT,$txt)} {
+    set lnseen 0
+    while {$ln1<=$ln2} {
+      if {$ln1==$ln2} {
+        set bf2 [LineState $txt $tSTR $tCMN "$ln1.end +1 chars"]
+      }
+      RemoveTags $txt $ln1.0 $ln1.end
+      set currQtd [HighlightLine $txt $ln1 $currQtd]
+      if {$ln1==$ln2 && ($bf1 || $bf2!=$currQtd) && $data(MULTILINE,$txt)} {
+        set ln2 $endl  ;# run to the end
+      }
+      if {[incr lnseen]>$::hl_tcl::my::data(SEEN,$txt)} {
+        set lnseen 0
+        catch {after cancel $data(COROATFER,$txt)}
+        set data(COROATFER,$txt) [after idle after 1 [info coroutine]]
+        yield
+      }
+      incr ln1
     }
-    RemoveTags $txt $ln1.0 $ln1.end
-    set currQtd [HighlightLine $txt $ln1 $currQtd]
-    if {$ln1==$ln2 && ($bf1 || $bf2!=$currQtd) && $data(MULTILINE,$txt)} {
-      set ln2 $endl  ;# run to the end
-    }
-    if {[incr lnseen]>$::hl_tcl::my::data(SEEN,$txt)} {
-      set lnseen 0
-      after idle after 1 [info coroutine]
-      yield
-    }
-    incr ln1
   }
   if {[set cmd $data(CMD,$txt)] ne ""} {
     # run a command after changes done (its arguments are txt, ln1, ln2)
     append cmd " $txt $lno1 $lno2"
     {*}$cmd
   }
+  MemPos $txt
   return
 }
 #_____
@@ -810,9 +867,9 @@ proc ::hl_tcl::hl_readonly {txt {ro -1} {com2 ""}} {
   } else {proc ::$txt {args} "
       set _res_ \[eval $newcom \$args\]
       switch -exact -- \[lindex \$args 0\] \{
-          insert \{after idle {$com}\}
-          delete \{after idle {$com}\}
-          replace \{after idle {$com}\}
+          insert \{after idle \"$com \$args\"\}
+          delete \{after idle \"$com \$args\"\}
+          replace \{after idle \"$com \$args\"\}
       \}
       return \$_res_"
   }
@@ -837,7 +894,7 @@ proc ::hl_tcl::hl_init {txt args} {
 
   set ::hl_tcl::my::data(REG_TXT,$txt) ""  ;# disables Modified at changing the text
   foreach {opt val} {-dark 0 -readonly 0 -cmd "" -cmdpos "" -optRE 1 \
-  -multiline 1 -seen 500} {
+  -multiline 1 -seen 500 -plaintext no -insertwidth 2} {
     if {[dict exists $args $opt]} {set val [dict get $args $opt]}
     set ::hl_tcl::my::data([string toupper [string range $opt 1 end]],$txt) $val
   }
@@ -869,6 +926,8 @@ proc ::hl_tcl::hl_init {txt args} {
   if {[string first "::hl_tcl::" [bind $txt]]<0} {
     bind $txt <FocusIn> [list + ::hl_tcl::my::ShowCurrentLine $txt]
   }
+  set ::hl_tcl::my::data(_INSPOS_,$txt) ""
+  my::MemPos $txt
 }
 #_____
 
@@ -899,8 +958,10 @@ proc ::hl_tcl::hl_text {txt} {
   catch {$txt tag raise hilited;  $txt tag raise hilited2} ;# for apave package
   my::HighlightAll $txt
   if {![info exists ::hl_tcl::my::data(BIND_TXT,$txt)]} {
-    bind $txt <KeyPress> [list + ::hl_tcl::my::MemPos $txt]
-    bind $txt <ButtonPress-1> [list + ::hl_tcl::my::MemPos $txt]
+    bind $txt <FocusIn> [list + ::hl_tcl::my::MemPos $txt]
+    bind $txt <KeyPress> [list + ::hl_tcl::my::MemPos1 $txt]
+    bind $txt <KeyRelease> [list + ::hl_tcl::my::MemPos $txt]
+    bind $txt <ButtonRelease-1> [list + ::hl_tcl::my::MemPos $txt]
     foreach ev {Enter KeyRelease ButtonRelease} {
       bind $txt <$ev> [list + ::hl_tcl::my::HighlightBrackets $txt]
     }
