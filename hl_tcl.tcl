@@ -6,7 +6,7 @@
 # License: MIT.
 # _______________________________________________________________________ #
 
-package provide hl_tcl 0.8.13
+package provide hl_tcl 0.8.14
 
 # _______________ Common data of ::hl_tcl:: namespace ______________ #
 
@@ -355,18 +355,20 @@ proc ::hl_tcl::my::CoroHighlightAll {txt} {
   # See also: HighlightAll
 
   variable data
-  if {!$data(PLAINTEXT,$txt)} {
-    set tlen [lindex [split [$txt index end] .] 0]
-    RemoveTags $txt 1.0 end
-    set maxl [expr {min($::hl_tcl::my::data(SEEN,$txt),$tlen)}]
-    set maxl [expr {min($::hl_tcl::my::data(SEEN,$txt),$tlen)}]
-    for {set currQtd [set ln [set lnseen 0]]} {$ln<=$tlen} {} {
-      set currQtd [HighlightLine $txt $ln $currQtd]
-      incr ln
-      if {[incr lnseen]>$::hl_tcl::my::data(SEEN,$txt)} {
-        set lnseen 0
-        after idle after 1 [info coroutine]
-        yield
+  catch {  ;# $txt may be destroyed, so catch this
+    if {!$data(PLAINTEXT,$txt)} {
+      set tlen [lindex [split [$txt index end] .] 0]
+      RemoveTags $txt 1.0 end
+      set maxl [expr {min($::hl_tcl::my::data(SEEN,$txt),$tlen)}]
+      set maxl [expr {min($::hl_tcl::my::data(SEEN,$txt),$tlen)}]
+      for {set currQtd [set ln [set lnseen 0]]} {$ln<=$tlen} {} {
+        set currQtd [HighlightLine $txt $ln $currQtd]
+        incr ln
+        if {[incr lnseen]>$::hl_tcl::my::data(SEEN,$txt)} {
+          set lnseen 0
+          after idle after 1 [info coroutine]
+          yield
+        }
       }
     }
   }
@@ -490,11 +492,7 @@ proc ::hl_tcl::my::Modified {txt oper pos1 args} {
   }
   switch $oper {
     insert {
-      set nl [expr {[llength [split $ar2 \n]] - 1}]
-      set pos2 [$txt index "$pos1 +$nl lines"]
-      if {($pos1+$nl)>$pos2} {
-        set pos1 [expr {1.0*int(max(1,abs($pos2-$nl)))}]
-      }
+      set pos2 [expr {$pos1 + [llength [split $ar2 \n]]}]
     }
     delete {
       if {$ar2 eq "" || [catch {set pos2 [$txt index $ar2]}]} {
