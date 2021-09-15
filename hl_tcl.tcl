@@ -7,7 +7,7 @@
 # License: MIT.
 ###########################################################
 
-package provide hl_tcl 0.9.14
+package provide hl_tcl 0.9.19
 
 # ______________________ Common data ____________________ #
 
@@ -73,8 +73,8 @@ namespace eval ::hl_tcl {
   set data(S_SPACE2) [concat $data(S_SPACE) [list "\{"]]
   set data(S_BOTH) [concat $data(S_SPACE) [list "\"" "="]]
 
-  set data(RE0) {(^|\[|\{|\}|;)+\s*([:_[:alpha:]])+}
-  set data(RE1) {(\[|\{|\}|;)+\s*([:_[:alpha:]])+}
+  set data(RE0) {(^|\[|\{|\}|;)+\s*([:\w]+)([\s]|$){1}}
+  set data(RE1) {(\[|\{|\}|;)+\s*([:\w]+)([\s]|$){1}}
   set data(RE5) {(^|[^\\])(\[|\]|\$|\{|\})+}
   }
 }
@@ -152,11 +152,11 @@ proc ::hl_tcl::my::HighlightCmd {txt line ln pri i} {
   if {$pri} {set RE $data(RE1)} {set RE $data(RE0)}
   set lcom [regexp -inline -all -indices $RE $st]
   # commands
-  foreach {lc _ _} $lcom {
+  foreach {- - lc -} $lcom {
     lassign $lc i1 i2
     set c [string trim [string range $st $i1 $i2] "\{\}\[;\t "]
     set ik [expr {$i2-$i1+1-[string length $c]}]
-    if {$c ne ""} {
+    if {$c ne {}} {
       incr i1 $ik
       incr i2
       if {[lsearch -exact -sorted $data(CMD_TCL) $c]>-1} {
@@ -174,7 +174,7 @@ proc ::hl_tcl::my::HighlightCmd {txt line ln pri i} {
   set cnt [CountChar $st \$ dlist no]
   foreach dl $dlist {
     if {[string index $st $dl+1] eq "\{"} {
-      if {[set br2 [string first "\}" $st $dl+2]]!=-1} {
+      if {[set br2 [string first \} $st $dl+2]]!=-1} {
         $txt tag add tagVAR "$ln.$pri +$dl char" "$ln.$pri +[incr br2] char"
       }
       continue
@@ -492,6 +492,23 @@ proc ::hl_tcl::my::MemPos {txt {doit no}} {
 }
 #_____
 
+proc ::hl_tcl::my::RunCoroAfterIdle {txt pos1 pos2 wait args} {
+  # Runs a "modified" corotine after idle.
+
+  variable data
+  if {$wait} {
+    catch {
+      after cancel $data(COROAFTER,$txt)
+      if {$data(COROPOS1,$txt) < $pos1} {set pos1 $data(COROPOS1,$txt)}
+      if {$data(COROPOS2,$txt) > $pos2} {set pos2 $data(COROPOS2,$txt)}
+    }
+    set data(COROPOS1,$txt) $pos1
+    set data(COROPOS2,$txt) $pos2
+  }
+  set data(COROAFTER,$txt) [after idle "::hl_tcl::my::CoroRun $txt $pos1 $pos2 $args"]
+}
+#_____
+
 proc ::hl_tcl::my::Modified {txt oper pos1 args} {
   # Handles modifications of text.
   #   txt - text widget's path
@@ -514,7 +531,7 @@ proc ::hl_tcl::my::Modified {txt oper pos1 args} {
       }
     }
   }
-  after idle "::hl_tcl::my::CoroRun $txt $pos1 $pos2 $args"
+  RunCoroAfterIdle $txt $pos1 $pos2 no {*}$args
 }
 #_____
 
@@ -523,7 +540,9 @@ proc ::hl_tcl::my::CoroRun {txt pos1 pos2 args} {
   variable data
   if {![info exist data(REG_TXT,$txt)] || $data(REG_TXT,$txt) eq {} || \
   ![info exist data(CUR_LEN,$txt)]} {
-    return  ;# skip changes till the highlighting done
+    # skip changes till the highlighting done
+    after 10 [list ::hl_tcl::my::RunCoroAfterIdle $txt $pos1 $pos2 yes {*}$args]
+    return
   }
   # let them work one by one
   set i1 [expr {int($pos1)}]
@@ -557,17 +576,18 @@ proc ::hl_tcl::my::CoroModified {txt {i1 -1} {i2 -1} args} {
   # flag "highlight to the end":
   set bf1 [expr {abs($ln-int($data(CURPOS,$txt)))>1 || $dl>1 \
    || $cntq!=$data(CNT_QUOTE,$txt) \
-   || $cnts!=$data(CNT_SLASH,$txt) \
    || $ccmnt!=$data(CNT_COMMENT,$txt)}]
-  if {$bf1 && !$data(MULTILINE,$txt)} {
+  set bf2 [expr {$cnts!=$data(CNT_SLASH,$txt)}]
+  if {$bf1 && !$data(MULTILINE,$txt) || $bf2} {
     set lnt1 $ln
     set lnt2 [expr {$ln+1}]
     while {$ln2<$endl && $lnt1<$endl && $lnt2<=$endl && ( \
     [$txt get "$lnt1.end -1 char" $lnt1.end] in {\\ \"} ||
-    [$txt get "$lnt2.end -1 char" $lnt2.end] in {\\ \"})} {
+    [$txt get "$lnt2.end -1 char" $lnt2.end] in {\\ \"}) || $bf2} {
       incr lnt1 ;# next lines be handled too, if ended with "\\"
       incr lnt2
       incr ln2
+      set bf2 0
     }
   }
   set tSTR [$txt tag ranges tagSTR]
@@ -1071,12 +1091,18 @@ proc ::hl_tcl::hl_colorNames {} {
 
 #_____
 
-proc ::hl_tcl::hl_colors {txt {dark ""}} {
-  # Gets the main colors for highlighting (except for "curr.line").
+proc ::hl_tcl::hl_colors {txt {dark ""} args} {
+  # Gets/sets the main colors for highlighting (except for "curr.line").
   #   txt - text widget's path
+  #   dark - flag "dark scheme"
+  #   args - a list of colors to set for *txt*
   # Returns a list of colors for COM COMTK STR VAR CMN PROC OPT BRAC \
    or, if the colors aren't initialized, "standard" colors.
 
+  if {[llength $args]} {
+    set ::hl_tcl::my::data(COLORS,$txt) $args
+    return
+  }
   if {[info exists ::hl_tcl::my::data(COLORS,$txt)]}  {
     return $::hl_tcl::my::data(COLORS,$txt)
   }
@@ -1109,5 +1135,5 @@ proc ::hl_tcl::hl_line {txt} {
 }
 
 # _________________________________ EOF _________________________________ #
-#RUNF1: ../../src/alited.tcl DEBUG
+#RUNF1: ../../src/alited.tcl LOG=~/TMP/alited-DEBUG.log DEBUG
 #RUNF1: ~/PG/github/pave/tests/test2_pave.tcl 37 9 12
