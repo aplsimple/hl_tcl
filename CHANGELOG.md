@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `0.9.35 (27 Feb'22)`
+
+  - NEW   : quotes highlighted
+
+
 Version `0.9.34 (26 Jan'22)`
 
   - CHANGE: hl_tcl::addingColors - try to get $dark from apave
