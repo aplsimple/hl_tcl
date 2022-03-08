@@ -1,9 +1,10 @@
 # Last changes:
 
 
-Version `0.9.35 (27 Feb'22)`
+Version `0.9.36 (8 Mar'22)`
 
   - NEW   : quotes highlighted
+  - CHANGE: docs
 
 
 Version `0.9.34 (26 Jan'22)`
