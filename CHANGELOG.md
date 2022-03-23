@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `0.9.37 (21 Mar'22)`
+
+  - BUGFIX: highlighting several adjacent quotes ("" "") in plain texts
+
+
 Version `0.9.36 (8 Mar'22)`
 
   - NEW   : quotes highlighted
