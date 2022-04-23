@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `0.9.38 (23 Apr'22)`
+
+  - CHANGE: curr.line & TODO comment colors; depending on CS
+
+
 Version `0.9.37 (21 Mar'22)`
 
   - BUGFIX: highlighting several adjacent quotes ("" "") in plain texts
