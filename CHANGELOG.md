@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `0.9.39 (22 May'22)`
+
+  - BUGFIX: highlighting an alone command that is just followed by ";"
+
+
 Version `0.9.38 (23 Apr'22)`
 
   - CHANGE: curr.line & TODO comment colors; depending on CS
