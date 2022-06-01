@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `0.9.40 (25 May'22)`
+
+  - NEW   : hl_commands proc - to list all Tcl/Tk commands registered here
+
+
 Version `0.9.39 (22 May'22)`
 
   - BUGFIX: highlighting an alone command that is just followed by ";"
