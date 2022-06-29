@@ -1,9 +1,10 @@
 # Last changes:
 
 
-Version `0.9.40 (25 May'22)`
+Version `0.9.41 (27 May'22)`
 
-  - NEW   : hl_commands proc - to list all Tcl/Tk commands registered here
+  - NEW   : hl_commands to list all Tcl/Tk commands registered here
+  - CHANGE: string color of data(SYNTAXCOLORS,1) made green
 
 
 Version `0.9.39 (22 May'22)`
