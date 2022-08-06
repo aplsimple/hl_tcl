@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `0.9.42 (4 Aug'22)`
+
+  - CHANGE: RE for TODO comments is a variable
+
+
 Version `0.9.41 (27 May'22)`
 
   - NEW   : hl_commands to list all Tcl/Tk commands registered here
