@@ -1,6 +1,18 @@
 # Last changes:
 
 
+Version `0.9.44 (4 Nov'22)`
+
+  - CHANGE: "break, continue" are highlighted like "return"
+  - CHANGE: data(SYNTAXCOLORS,1) - STR (strings)
+
+
+Version `0.9.43 (25 Oct'22)`
+
+  - NEW   : hl_tcl_html.tcl highlights TODO comments
+  - CHANGE: data(SYNTAXCOLORS,1): string colors
+
+
 Version `0.9.42 (4 Aug'22)`
 
   - CHANGE: RE for TODO comments is a variable

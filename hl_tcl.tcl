@@ -6,7 +6,7 @@
 # License: MIT.
 ###########################################################
 
-package provide hl_tcl 0.9.42
+package provide hl_tcl 0.9.44
 
 # ______________________ Common data ____________________ #
 
@@ -19,12 +19,12 @@ namespace eval ::hl_tcl {
     # Tcl commands
     set data(PROC_TCL) [lsort [list \
       return proc method self my coroutine yield yieldto constructor destructor \
-      namespace oo::define oo::class oo::objdefine oo::object
+      break continue namespace oo::define oo::class oo::objdefine oo::object
     ]]
     set data(CMD_TCL) [lsort [list \
       set incr if else elseif string expr list lindex lrange llength lappend \
       lreplace lsearch lassign append split info array dict foreach for while \
-      break continue switch default linsert lsort lset lmap lrepeat catch variable \
+      switch default linsert lsort lset lmap lrepeat catch variable \
       concat format scan regexp regsub upvar uplevel try throw read eval \
       after update error global puts file chan open close eof seek flush mixin \
       msgcat gets rename glob fconfigure fblocked fcopy cd pwd mathfunc then \
@@ -89,8 +89,8 @@ namespace eval ::hl_tcl {
       {orange #ff7e00 lightgreen #f1b479 #76a396 #fe6efe #b9b96e #ff33ff}
     }
     set data(SYNTAXCOLORS,1) {
-      {#3a6797 #134070 #923B23 #1b1baa #4b5d50 #ca14ca #6c3e67 #FF0000}
-      {#95c2f2 #73a0d0 #d6b683 #a9a9f7 #76a396 #fe6efe #e2b4dd #ff33ff}
+      {#3a6797 #134070 #8b2a0e #1b1baa #4b5d50 #ca14ca #6c3e67 #FF0000}
+      {#95c2f2 #73a0d0 #ffc27e #a9a9f7 #76a396 #fe6efe #e2b4dd #ff33ff}
     }
     set data(SYNTAXCOLORS,2) {
       {#2b6b2b #0b4b0b #bd00bd #004080 #606060 #8a3407 #463e11 #FF0000}
@@ -208,7 +208,7 @@ proc ::hl_tcl::my::HighlightCmd {txt line ln pri i} {
   set slen [expr {[string length $st]-1}]
   set cnt [CountChar $st \$ dlist no]
   foreach dl $dlist {
-    if {[string index $st $dl+1] eq "\{"} {
+    if { [string index $st $dl+1] eq "\{" } {
       if {[set br2 [string first \} $st $dl+2]]!=-1} {
         $txt tag add tagVAR "$ln.$pri +$dl char" "$ln.$pri +[incr br2] char"
       }
@@ -314,7 +314,7 @@ proc ::hl_tcl::my::FirstQtd {lineName iName currQtd} {
         while {$i1>0} {
           set c1 [string index $line $i1-1]
           set c2 [string index $line $i1]
-          if {$c1 in $data(S_SPACE)} {return [expr {$c2 ne "\{"}]}
+          if {$c1 in $data(S_SPACE)} {return [expr { $c2 ne "\{" }]}
           incr i1 -1
         }
         return no
