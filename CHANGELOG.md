@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `0.9.45 (4 Jan'23)`
+
+  - CHANGE: "finally" highlighted
+
+
 Version `0.9.44 (4 Nov'22)`
 
   - CHANGE: "break, continue" are highlighted like "return"
