@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `0.9.46 (25 Jan'23)`
+
+  - CHANGE: CoroModified: "after idle $cmd" instead of {*}$cmd
+
+
 Version `0.9.45 (4 Jan'23)`
 
   - CHANGE: "finally" highlighted
