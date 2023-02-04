@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `0.9.47 (2 Feb'23)`
+
+  - BUGFIX: highlighting "--longoption"
+
+
 Version `0.9.46 (25 Jan'23)`
 
   - CHANGE: CoroModified: "after idle $cmd" instead of {*}$cmd
