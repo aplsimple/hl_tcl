@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `0.9.48 (8 Feb'23)`
+
+  - CHANGE: some colors & ornament a-la alited
+
+
 Version `0.9.47 (2 Feb'23)`
 
   - BUGFIX: highlighting "--longoption"
