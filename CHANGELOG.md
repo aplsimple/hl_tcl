@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `0.9.49 (22 Feb'23)`
+
+  - CHANGE: colors reordered: 1st set is least florid
+
+
 Version `0.9.48 (8 Feb'23)`
 
   - CHANGE: some colors & ornament a-la alited
