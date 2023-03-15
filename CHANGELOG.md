@@ -1,6 +1,13 @@
 # Last changes:
 
 
+Version `1.0.0 (15 Mar'23)`
+
+  - NEW   : -plaincom option for plain highlighting line by line
+  - NEW   : hl_tcl::iscurline to set/get a flag of highlighting lines
+  - NEW   : -dobind option to force keys binding (in hl_init)
+
+
 Version `0.9.49 (22 Feb'23)`
 
   - CHANGE: colors reordered: 1st set is least florid
