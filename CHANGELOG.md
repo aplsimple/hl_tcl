@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `1.0.1 (23 Mar'23)`
+
+  - NEW   : isdone proc: checks if the highlighting is done
+
+
 Version `1.0.0 (15 Mar'23)`
 
   - NEW   : -plaincom option for plain highlighting line by line
