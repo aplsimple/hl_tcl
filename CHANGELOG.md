@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `1.0.2 (24 Mar'23)`
+
+  - NEW   : clearup proc: clears data related to text
+
+
 Version `1.0.1 (23 Mar'23)`
 
   - NEW   : isdone proc: checks if the highlighting is done
