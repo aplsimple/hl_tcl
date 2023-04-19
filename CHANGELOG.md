@@ -1,6 +1,16 @@
 # Last changes:
 
 
+Version `1.0.4 (13 Apr'23)`
+
+  - CHANGE: catch in .internal proc (for deleted texts)
+
+
+Version `1.0.3 (31 Mar'23)`
+
+  - CHANGE: 'timerate' added
+
+
 Version `1.0.2 (24 Mar'23)`
 
   - NEW   : clearup proc: clears data related to text
