@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `1.0.5 (26 Apr'23)`
+
+  - CHANGE: clear up my::data(LIST_TXT) (in *clearup* procs)
+
+
 Version `1.0.4 (13 Apr'23)`
 
   - CHANGE: catch in .internal proc (for deleted texts)
