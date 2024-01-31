@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `1.1.0 (29 Jan'24)`
+
+  - NEW   : TODO comments in C++ code (//! and //TODO)
+
+
 Version `1.0.6 (18 Sep'23)`
 
   - CHANGE: CoroModified method: preset STD tag for all texts
