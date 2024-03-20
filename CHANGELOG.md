@@ -1,6 +1,16 @@
 # Last changes:
 
 
+Version `1.1.2 (10 Mar'24)`
+
+  - BUGFIX: hl_tcl_html.tcl: replacing tagging <>.
+
+
+Version `1.1.1 (16 Feb'24)`
+
+  - CHANGE: IsCurline procedure: added a check.
+
+
 Version `1.1.0 (29 Jan'24)`
 
   - NEW   : TODO comments in C++ code (//! and //TODO)
