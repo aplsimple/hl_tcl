@@ -1,6 +1,12 @@
 # Last changes:
 
 
+Version `1.1.3 (27 Mar'24)`
+
+  - NEW   : cget/configure to get/set options
+  - BUGFIX: hl_tcl_html.tcl: replacing tagging <>; source instead of package require
+
+
 Version `1.1.2 (10 Mar'24)`
 
   - BUGFIX: hl_tcl_html.tcl: replacing tagging <>.
