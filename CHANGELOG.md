@@ -1,6 +1,13 @@
 # Last changes:
 
 
+Version `1.1.4 (24 Jul'24)`
+
+  - NEW   : default text options taken from the text (-insertwidth as sample)
+  - NEW   : "test" command highlighted as "proc"
+  - CHANGE: tiny clearance
+
+
 Version `1.1.3 (27 Mar'24)`
 
   - NEW   : cget/configure to get/set options

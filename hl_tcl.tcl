@@ -6,7 +6,7 @@
 # License: MIT.
 ###########################################################
 
-package provide hl_tcl 1.1.3
+package provide hl_tcl 1.1.4
 
 # ______________________ Common data ____________________ #
 
@@ -19,7 +19,7 @@ namespace eval ::hl_tcl {
     # Tcl commands
     set data(PROC_TCL) [lsort [list \
       return proc method self my coroutine yield yieldto constructor destructor \
-      break continue namespace oo::define oo::class oo::objdefine oo::object
+      break continue namespace oo::define oo::class oo::objdefine oo::object test
     ]]
     set data(CMD_TCL) [lsort [list \
       set incr if else elseif string expr list lindex lrange llength lappend \
@@ -470,7 +470,7 @@ proc ::hl_tcl::my::CountQSH {txt ln} {
 
   set ln [expr {int($ln)}]
   set st [$txt get $ln.0 $ln.end]
-  return [list [CountChar $st \"] [CountChar $st \\] [CountChar $st #]]
+  list [CountChar $st \"] [CountChar $st \\] [CountChar $st #]
 }
 #_______________________
 
@@ -1071,14 +1071,29 @@ proc ::hl_tcl::hl_init {txt args} {
   set ::hl_tcl::my::data(REG_TXT,$txt) {}  ;# disables Modified at changing the text
   set ::hl_tcl::my::data(KEYWORDS,$txt) {}
   set ::hl_tcl::my::data(DOBIND,$txt) 0
+  # get default options from text's ones
+  set defopts [list -insertwidth]
+  foreach defopt $defopts {
+    set opt [OptName $txt $defopt]
+    if {![info exists ::hl_tcl::my::data($opt)]} {
+      set ::hl_tcl::my::data($opt,DEFAULT) [$txt cget $defopt]
+    }
+  }
   foreach {opt val} {-dark 0 -readonly 0 -cmd {} -cmdpos {} -optRE 1 -dobind 0 \
-  -multiline 1 -seen 500 -plaintext no -plaincom {} -insertwidth 2 -keywords {}} {
+  -multiline 1 -seen 500 -plaintext no -plaincom {} -insertwidth {} -keywords {}} {
     if {[dict exists $args $opt]} {
       set val [dict get $args $opt]
     } elseif {$setonly} {
       continue  ;# only those set in args are taken into account
     }
-    set ::hl_tcl::my::data([string toupper [string range $opt 1 end]],$txt) $val
+    set ::hl_tcl::my::data([OptName $txt $opt]) $val
+  }
+  # reget default options from text's ones
+  foreach defopt $defopts {
+    set opt [OptName $txt $defopt]
+    if {[info exists ::hl_tcl::my::data($opt)] && $::hl_tcl::my::data($opt) eq {}} {
+      set ::hl_tcl::my::data($opt) $::hl_tcl::my::data($opt,DEFAULT)
+    }
   }
   set ::hl_tcl::my::data(CMD_TK_EXP) [lsort [list \
     {*}$::hl_tcl::my::data(CMD_TK) {*}$::hl_tcl::my::data(KEYWORDS,$txt)]]
@@ -1193,7 +1208,7 @@ proc ::hl_tcl::hl_all {args} {
 proc ::hl_tcl::hl_colorNames {} {
   # Returns a list of color names for syntax highlighting.
 
-  return [list clrCOM clrCOMTK clrSTR clrVAR clrCMN clrPROC clrOPT clrBRA]
+  list clrCOM clrCOMTK clrSTR clrVAR clrCMN clrPROC clrOPT clrBRA
 }
 
 #_______________________
@@ -1275,7 +1290,7 @@ proc ::hl_tcl::hl_commands {} {
   # Lists all Tcl/Tk commands registered here.
 
   variable my::data
-  return [list {*}$my::data(PROC_TCL) {*}$my::data(CMD_TCL) {*}$my::data(CMD_TK)]
+  list {*}$my::data(PROC_TCL) {*}$my::data(CMD_TCL) {*}$my::data(CMD_TK)
 }
 #_______________________
 
@@ -1334,6 +1349,16 @@ proc ::hl_tcl::configure {txt opt val} {
   variable my::data
   set opt [string toupper [string trimleft $opt -]]
   set my::data($opt,$txt) $val
+}
+
+# ________________________ Helpers _________________________ #
+
+proc ::hl_tcl::OptName {txt opt} {
+  # Gets hl_tcl option's name.
+  #   txt - text's path
+  #   opt - option
+
+  return [string toupper [string range $opt 1 end]],$txt
 }
 
 # _________________________________ EOF _________________________________ #
