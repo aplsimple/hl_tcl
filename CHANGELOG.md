@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `1.1.5 (29 Aug'24)`
+
+  - BUGFIX: some procs not being correctly named ::hl_tcl::* (thanks to George)
+
+
 Version `1.1.4 (24 Jul'24)`
 
   - NEW   : default text options taken from the text (-insertwidth as sample)
