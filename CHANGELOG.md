@@ -1,9 +1,10 @@
 # Last changes:
 
 
-Version `1.1.5 (29 Aug'24)`
+Version `1.1.6 (31 Aug'24)`
 
-  - BUGFIX: some procs not being correctly named ::hl_tcl::* (thanks to George)
+  - BUGFIX: some procs not being correctly named ::hl_tcl... (thanks to George)
+  - CHANGE: *-dobind* option deleted, with its possible issues (thanks to George)
 
 
 Version `1.1.4 (24 Jul'24)`
