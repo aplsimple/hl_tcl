@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `1.2 (31 Jan'25)`
+
+  - NEW   : commands of Tcl 9.0 added
+
+
 Version `1.1.6 (31 Aug'24)`
 
   - BUGFIX: some procs not being correctly named ::hl_tcl... (thanks to George)
