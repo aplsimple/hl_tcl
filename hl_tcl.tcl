@@ -6,7 +6,7 @@
 # License: MIT.
 ###########################################################
 
-package provide hl_tcl 1.2
+package provide hl_tcl 1.2.1
 
 # ______________________ Common data ____________________ #
 

@@ -1,6 +1,11 @@
 # Last changes:
 
 
+Version `1.2.1 (23 Aug'25)`
+
+  - NEW   : hl_tcl_html::highlight: destroying text widget, to allow repeated calls from a script (like in tcl_html.tcl)
+
+
 Version `1.2 (31 Jan'25)`
 
   - NEW   : commands of Tcl 9.0 added
