@@ -138,7 +138,7 @@ proc ::hl_tcl_html::highlight {htmlfile darkedit args} {
   chan configure $chan -encoding utf-8
   puts -nonewline $chan $text
   close $chan
-  catch {destroy $txt}
+  destroy $txt
 }
 
 # _________________________________ EOF _________________________________ #
